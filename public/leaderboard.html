@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<!-- 
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+  
+-->
+<html>
+  <head>
+    <title>Home</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="icon" href="images/logocrop.png" />
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="dropdown.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body class="is-preload" onload="display()">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Header -->
+      <header id="header">
+        <!-- Nav -->
+        <nav>
+          <ul>
+            <li><a href="#menu">Menu</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <!-- Menu -->
+
+      <nav id="menu">
+        <h2>Menu</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a id="login" href="login.html">Login/Sign Up</a></li>
+          <li><a id="contest" href="contest1.html" style="display:none">Contest</a></li>
+          <li><a href="leaderboard.html">Leaderboard</a></li>
+          <li><a href="rules.html">Rules</a></li>
+          <li><a id="profile" href="profile.html" style="display:none">Your Profile</a></li>
+          <li><a href="cncm.html">Who We Are</a></li>
+        </ul>
+      </nav>
+      <!-- Main -->
+      <div id="main">
+        <div class="inner" >
+          <header>
+            <h1>
+              Live Leaderboard!
+            </h1>
+            <h3>
+              This updates upon page refresh
+            </h3>
+            <div id="myDynamicTable"></div>
+          </header>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer id="footer">
+        <div class="inner">
+          <section>
+            <h2>Get in touch</h2>
+            <form method="post" action="#">
+              <div class="fields">
+                <div class="field half">
+                  <input type="text" name="name" id="name" placeholder="Name" />
+                </div>
+                <div class="field half">
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    placeholder="Email"
+                  />
+                </div>
+                <div class="field">
+                  <textarea
+                    name="message"
+                    id="message"
+                    placeholder="Message"
+                  ></textarea>
+                </div>
+              </div>
+              <ul class="actions">
+                <li><input type="submit" value="Send" class="primary" /></li>
+              </ul>
+            </form>
+          </section>
+          <section>
+            <h2>Follow</h2>
+            <ul class="icons">
+              <li>
+                <a
+                  href="mailto:centralncmathgroup@gmail.com"
+                  class="icon solid style2"
+                  ><i class="fa fa-envelope" style="font-size:21px"></i></a
+                >
+              </li>
+            </ul>
+          </section>
+          <ul class="copyright">
+            <li>&copy; CNCM. All rights reserved</li>
+            <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+          </ul>
+        </div>
+      </footer>
+    </div>
+
+
+  <!-- Scripts -->
+  <script src="jquery.min.js"></script>
+  <script src="browser.min.js"></script>
+  <script src="breakpoints.min.js"></script>
+  <script src="util.js"></script>
+  <script src="main.js"></script>
+  <script src="settings.json"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-auth.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyDhoFtNnVhGzV3FqYvSVXo63JfiixRC4a0",
+      authDomain: "cncm-4e7b0.firebaseapp.com",
+      databaseURL: "https://cncm-4e7b0.firebaseio.com",
+      projectId: "cncm-4e7b0",
+      storageBucket: "cncm-4e7b0.appspot.com",
+      messagingSenderId: "45642358967",
+      appId: "1:45642358967:web:7ffb88c0ae142061272d32",
+      measurementId: "G-LMTM6KGV6C"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.database();
+  
+    firebase.auth().onAuthStateChanged(function(user) {
+    
+      if (user) {
+        // User is signed in.
+        var displayName = user.displayName;
+        var email = user.email;
+        var emailVerified = user.emailVerified;
+        var photoURL = user.photoURL;
+        var isAnonymous = user.isAnonymous;
+        currentUserId = user.uid;
+        var providerData = user.providerData;
+
+        if (emailVerified) {
+          document.getElementById("login").style.display = "none"
+          document.getElementById("profile").style.display = "list-item"
+          document.getElementById("contest").style.display = "list-item"
+        }
+        // ...
+      } else {
+        // User is signed out.  
+      }
+    });
+    
+    var scorersTable = [];
+
+    function display() {
+      systemtesting().then(function() {
+        createTable()
+      })
+    }
+
+    async function systemtesting() {
+      var temp = [0,0,0,0,0,0,0]
+
+      await firebase.database().ref("Answers").once('value').then(function(info) {
+        for (let n = 1; n < 8; n++) {
+          temp[n-1] = info.child("q" + n.toString()).val();
+        }
+      })
+      
+      var duration = 1
+      var penalty = 1
+      var pointvalues = []
+
+      await firebase.database().ref("Contest").once("value").then(function(snapshot) {
+        duration = snapshot.child("duration").val()
+        penalty = snapshot.child("penalty").val()
+        pointvalues = snapshot.child("pointValues").val()
+      })
+
+      var email = "";
+      var name = "";
+
+      await firebase.database().ref("Competitors").once("value").then(function(questionsSnapshot) {
+        var userId;
+
+        questionsSnapshot.forEach(function(questionSnapshot) {
+          userId = questionSnapshot.key;
+          var name = questionSnapshot.child("name").val();
+
+          var submission = ""
+          var time = 0
+          var score = [0,0,0,0,0,0,0]
+          var userscore = 0;
+          
+          //placehold is 1 to avoid divide by 0
+          for (let n = 1; n < 8; n++) {
+            submission = questionSnapshot.child("q" + n.toString() + "/Submission").val();
+            time = questionSnapshot.child("q" + n.toString() + "/Time").val();
+            attempts = questionSnapshot.child("q" + n.toString() + "/Attempts").val();
+
+            if (temp[n-1] == parseInt(submission)) {
+              score[n-1] = parseInt(pointvalues[n-1] * (time / duration))
+
+              if (attempts != null) {
+                score[n-1] = score[n-1] - penalty * (4 - attempts)
+              }
+            } else {
+              score[n-1] = 0
+
+              if (attempts != null) {
+                score[n-1] = score[n-1] - penalty * (5 - attempts)
+              }
+            }
+
+            userscore += score[n-1]
+
+            firebase.database().ref("Competitors/" + userId + "/q" + n.toString()).update({Score: score[n-1]});
+          }
+
+          firebase.database().ref("Competitors/"+userId).update({totalscore: userscore});
+          scorersTable.push({name: name, score: score, totalscore: userscore});
+        });
+      });
+    }
+
+    function createTable() {
+
+      scorersTable.sort((a,b) => (a.totalscore < b.totalscore) ? 1 : -1);
+      var myTableDiv = document.getElementById("myDynamicTable");
+
+      var table = document.createElement('TABLE');
+      table.border = '1';
+
+      var tableBody = document.createElement('TBODY');
+      table.appendChild(tableBody);
+
+      for (var i = 0; i < scorersTable.length + 1; i++) {
+        var tr = document.createElement('TR');
+        tableBody.appendChild(tr);
+
+        if (i == 0) {
+          var td = document.createElement('TD');
+
+          td.width = '20';
+          td.appendChild(document.createTextNode("Rank"));
+          tr.appendChild(td)
+
+          td = document.createElement('TD');
+          td.width = '75';
+          td.appendChild(document.createTextNode("Username"));
+          tr.appendChild(td)
+
+          td = document.createElement('TD');
+          td.width = '75';
+          td.appendChild(document.createTextNode("Total"));
+          tr.appendChild(td)
+
+          td = document.createElement('TD');
+          td.width = '75';
+          td.appendChild(document.createTextNode("P1"));
+          tr.appendChild(td)
+
+          td = document.createElement('TD');
+          td.width = '75';
+          td.appendChild(document.createTextNode("P2"));
+          tr.appendChild(td)
+
+          td = document.createElement('TD');
+          td.width = '75';
+          td.appendChild(document.createTextNode("P3"));
+          tr.appendChild(td)
+
+          td = document.createElement('TD');
+          td.width = '75';
+          td.appendChild(document.createTextNode("P4"));
+          tr.appendChild(td)
+
+          td = document.createElement('TD');
+          td.width = '75';
+          td.appendChild(document.createTextNode("P5"));
+          tr.appendChild(td)
+
+          td = document.createElement('TD');
+          td.width = '75';
+          td.appendChild(document.createTextNode("P6"));
+          tr.appendChild(td)
+
+          td = document.createElement('TD');
+          td.width = '75';
+          td.appendChild(document.createTextNode("P7"));
+          tr.appendChild(td)
+        } else {
+          for (var j = 0; j < 10; j++) {
+            var td = document.createElement('TD');
+            td.width = '75';
+            if (j == 0) {
+              td.width = '20';
+              td.appendChild(document.createTextNode(i));
+            } else if (j == 1) {
+              td.appendChild(document.createTextNode(scorersTable[i-1].name));
+            } else if (j == 2) {
+              td.style.fontWeight = "900";
+              td.appendChild(document.createTextNode(scorersTable[i-1].totalscore));
+            } else {
+              td.appendChild(document.createTextNode(scorersTable[i-1].score[j-3]));
+            }
+            tr.appendChild(td);
+          }
+        }
+      }
+      myTableDiv.appendChild(table)
+    }
+  </script>
+  <script src="submit.js"></script>
+      </body>
+</html>

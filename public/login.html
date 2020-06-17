@@ -1,0 +1,287 @@
+<!DOCTYPE HTML>
+<!-- 
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+  
+-->
+<html>
+	<head>
+		<title>Home</title>
+						<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="icon" href="images/logocrop.png">
+		<link rel="stylesheet" href="main.css" />
+		<link rel="stylesheet" href="dropdown.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+							
+						<div class="inner">
+
+
+								<a href="index.html" class="logo">
+									<span class="symbol"><img src="loginAssets/images/img-01.png" alt="" /></span><span class="title"></span>
+								</a>
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+
+				<!-- Menu -->
+					
+				<nav id="menu">
+                    <h2>Menu</h2>
+                    <ul>
+                      <li><a href="index.html">Home</a></li>
+                      <li><a href="login.html">Login/Sign Up!</a></li>
+                      <li><a href="leaderboard.html">Leaderboard</a></li>
+                      <li><a href="rules.html">Rules</a></li>
+                      <li><a href="cncm.html">Who We Are</a></li>
+                    </ul>
+                </nav>
+				<!-- Main -->
+					<div id="main"> 
+						<div class="inner">
+              <style>
+                button {
+                  margin-top: 15px;
+                  margin-bottom: 15px
+                }
+              </style>
+								
+              <h1>Login to Compete!</h1>
+              <button onclick = "showLogin()">Login</button> <button onclick = "showSignUp()">Sign Up</button>
+              
+              <h4 id="error" style="color:red"></h4> 
+              
+              <div id = "signup" style = "display:none">
+                <input type="text" name="name" id="signuser" placeholder="Email"/>
+                <input type="password" name="name" id="signpass" placeholder="Password"/><button id = "signbutton" onclick="signup()">Sign Up</button>
+                
+                <h4 id="verification" style="color:green"></h4>
+              </div>
+                
+              <div id = "login" style = "display:none">
+                <input type="text" name="name" id="username" placeholder="Email"/>
+                <input type="password" name="name" id="password" placeholder="Password"/><button id = "loginbutton" onclick="login()">Login</button>
+              </div>
+            </div>
+          </div>
+							
+				<!-- Footer -->
+				<footer id="footer">
+						<div class="inner">
+							<section>
+								<h2>Get in touch</h2>
+								<form method="post" action="#">
+									<div class="fields">
+										<div class="field half">
+											<input type="text" name="name" id="name" placeholder="Name" />
+										</div>
+										<div class="field half">
+											<input type="email" name="email" id="email" placeholder="Email" />
+										</div>
+										<div class="field">
+											<textarea name="message" id="message" placeholder="Message"></textarea>
+										</div>
+									</div>
+									<ul class="actions">
+										<li><input type="submit" value="Send" class="primary" /></li>
+									</ul>
+								</form>
+							</section>
+							<section>
+								<h2>Follow</h2>
+								<ul class="icons">
+
+									<li>
+                    <a 
+                      href="mailto:centralncmathgroup@gmail.com"
+                      class="icon solid style2"
+                      ><i class="fa fa-envelope" style="font-size:21px"></i></a
+                    >
+                  </li>
+								</ul>
+							</section>
+							<ul class="copyright">
+								<li>&copy; CNCM. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+							</ul>
+						</div>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="jquery.min.js"></script>
+			<script src="browser.min.js"></script>
+			<script src="breakpoints.min.js"></script>
+			<script src="util.js"></script>
+			<script src="main.js"></script>
+      
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-auth.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyDhoFtNnVhGzV3FqYvSVXo63JfiixRC4a0",
+    authDomain: "cncm-4e7b0.firebaseapp.com",
+    databaseURL: "https://cncm-4e7b0.firebaseio.com",
+    projectId: "cncm-4e7b0",
+    storageBucket: "cncm-4e7b0.appspot.com",
+    messagingSenderId: "45642358967",
+    appId: "1:45642358967:web:7ffb88c0ae142061272d32",
+    measurementId: "G-LMTM6KGV6C"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.database();
+  
+  var CurrentUserId;
+  
+  async function signup () {
+    var email = document.getElementById("signuser").value;
+    var password = document.getElementById("signpass").value;
+    
+    firebase.auth().createUserWithEmailAndPassword(email, password).then(function() {
+      document.getElementById("verification").innerHTML = "Sending verification email..."
+    
+      firebase.auth().currentUser.sendEmailVerification().then(function() {
+        document.getElementById("verification").innerHTML = "Verification Email Sent!"
+        firebase.auth().signOut()
+      }).catch(function(error) {
+        document.getElementById("verification").innerHTML = error.message
+      })
+      
+      // setTimeout(function() {
+      //   document.getElementById("verification").innerHTML = "Verification Failed"
+      //   firebase.auth().signOut()
+      // }, 10000)
+    }).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      
+      if (errorCode == "auth/email-already-in-use") {
+        document.getElementById("error").innerHTML = "The email address is already in use"
+      } else if (errorCode == "auth/invalid-email") {
+        document.getElementById("error").innerHTML = "Please use a valid email"
+      } else if (errorCode == "auth/operation-not-allowed") {
+        document.getElementById("error").innerHTML = errorMessage
+      } else if (errorCode == "auth/weak-password") {
+        document.getElementById("error").innerHTML = "The password must contain at least 6 characters"
+      }
+      // ...
+    });
+  }
+  
+  
+  function login () {
+    var email = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+    firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+
+      if (errorCode == "auth/invalid-email") {
+        document.getElementById("error").innerHTML = "Please use a valid email"
+      } else if (errorCode == "auth/user-disabled") {
+        document.getElementById("error").innerHTML = "Your account has been disabled. Please contact us at centralncmathgroup@gmail.com for more information"
+      } else if (errorCode == "auth/user-not-found") {
+        document.getElementById("error").innerHTML = "Email not found"
+      } else if (errorCode == "auth/wrong-password") {
+        document.getElementById("error").innerHTML = "Incorrect password"
+      }
+    // ...
+    });
+    
+    if (!firebase.auth().currentUser.emailVerified) {
+      document.getElementById("error").innerHTML = "Account not verified"
+    }
+    
+    firebase.auth().signOut()
+  }
+
+  
+  function showLogin() {
+    document.getElementById("login").style.display = "inline"
+    
+    document.getElementById("signup").style.display = "none"
+    
+    document.getElementById("username").value = ""
+    document.getElementById("password").value = ""
+    document.getElementById("error").innerHTML = ""
+  }
+  
+  function showSignUp() {
+    document.getElementById("login").style.display = "none"
+    
+    document.getElementById("signup").style.display = "inline"
+    
+    document.getElementById("signuser").value = ""
+    document.getElementById("signpass").value = ""
+    document.getElementById("error").innerHTML = ""
+  }
+  
+  firebase.auth().onAuthStateChanged(function(user) {
+    console.log("works")
+  if (user) {
+    // User is signed in.
+    var displayName = user.displayName;
+    var email = user.email;
+    var emailVerified = user.emailVerified;
+    var photoURL = user.photoURL;
+    var isAnonymous = user.isAnonymous;
+    currentUserId = user.uid;
+    var providerData = user.providerData;
+    
+    //user.displayName = user.email;
+    var name;
+    if (user.displayName) {
+      name = user.displayName;
+    } else {
+      name = user.email;
+    }
+    firebase.database().ref("Users/"+currentUserId).update({email: user.email, name: name});
+    
+    if (emailVerified) {
+      window.location = "profile.html"
+    }
+    // ...
+  } else {
+    // User is signed out.
+  }
+});
+
+
+  /*
+        if (j == 0) {
+          td.appendChild(document.createTextNode(scores[i].email));    
+      } else if (j == 1) {
+          td.appendChild(document.createTextNode(scores[i].score));    
+      } else {
+          td.appendChild(document.createTextNode("0"));          
+      }
+      */
+  </script>
+        <script src="submit.js"></script>
+	</body>
+</html>

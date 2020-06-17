@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!-- 
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+  
+-->
+<html>
+  <head>
+    <title>Home</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <link rel="icon" href="images/logocrop.png" />
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="dropdown.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body class="is-preload" onload="display()">
+    <!-- Wrapper -->
+    <div id="wrapper">
+      <!-- Header -->
+      <header id="header">
+        <!-- Nav -->
+        <nav>
+          <ul>
+            <li><a href="#menu">Menu</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <!-- Menu -->
+
+      <nav id="menu">
+        <h2>Menu</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a id="login" href="login.html">Login/Sign Up</a></li>
+          <li><a id="contest" href="contest1.html" style="display:none">Contest</a></li>
+          <li><a href="leaderboard.html">Leaderboard</a></li>
+          <li><a href="rules.html">Rules</a></li>
+          <li><a id="profile" href="profile.html" style="display:none">Your Profile</a></li>
+          <li><a href="cncm.html">Who We Are</a></li>
+        </ul>
+      </nav>
+      <!-- Main -->
+      <div id="main">
+        <div class="inner" >
+          <header>
+            <h1>Who We Are</h1>
+            <p>Cyclic National Competitive Math Group (CNCM) is a non-profit organization, whose activity is centered around a Discord server with over 800 members. We host multiple competitions, both in-person and now online.</p>
+            <p>Our Discord server has a wide array of features! Our monthly mini-competition, Problem of the Day (PoTD), has problems to challenge all of our users, and even has a fun competitive aspect. Lectures are released biweekly, and several PoTDs will be based on the topic, to help our members learn.</p>
+            <p>More casually, we also host study groups, work on math problems together, play games, and just chat!</p>
+            <p>Join our Discord server <a href="https://discord.gg/ewQeEMU" target="_blank">here</a>, and check out our website at <a href="https://cncmath.org/" target="blank">https://cncmath.org/</a> for more details about our organization.</p>
+          </header>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer id="footer">
+        <div class="inner">
+          <section>
+            <h2>Get in touch</h2>
+            <form method="post" action="#">
+              <div class="fields">
+                <div class="field half">
+                  <input type="text" name="name" id="name" placeholder="Name" />
+                </div>
+                <div class="field half">
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    placeholder="Email"
+                  />
+                </div>
+                <div class="field">
+                  <textarea
+                    name="message"
+                    id="message"
+                    placeholder="Message"
+                  ></textarea>
+                </div>
+              </div>
+              <ul class="actions">
+                <li><input type="submit" value="Send" class="primary" /></li>
+              </ul>
+            </form>
+          </section>
+          <section>
+            <h2>Follow</h2>
+            <ul class="icons">
+              <li>
+                <a
+                  href="mailto:centralncmathgroup@gmail.com"
+                  class="icon solid style2"
+                  ><i class="fa fa-envelope" style="font-size:21px"></i></a
+                >
+              </li>
+            </ul>
+          </section>
+          <ul class="copyright">
+            <li>&copy; CNCM. All rights reserved</li>
+            <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+          </ul>
+        </div>
+      </footer>
+    </div>
+
+
+  <!-- Scripts -->
+  <script src="jquery.min.js"></script>
+  <script src="browser.min.js"></script>
+  <script src="breakpoints.min.js"></script>
+  <script src="util.js"></script>
+  <script src="main.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-auth.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyDhoFtNnVhGzV3FqYvSVXo63JfiixRC4a0",
+      authDomain: "cncm-4e7b0.firebaseapp.com",
+      databaseURL: "https://cncm-4e7b0.firebaseio.com",
+      projectId: "cncm-4e7b0",
+      storageBucket: "cncm-4e7b0.appspot.com",
+      messagingSenderId: "45642358967",
+      appId: "1:45642358967:web:7ffb88c0ae142061272d32",
+      measurementId: "G-LMTM6KGV6C"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.database();
+  
+  firebase.auth().onAuthStateChanged(function(user) {
+    
+    if (user) {
+      // User is signed in.
+      var displayName = user.displayName;
+      var email = user.email;
+      var emailVerified = user.emailVerified;
+      var photoURL = user.photoURL;
+      var isAnonymous = user.isAnonymous;
+      currentUserId = user.uid;
+      var providerData = user.providerData;
+      
+      if (emailVerified) {
+        document.getElementById("login").style.display = "none"
+        document.getElementById("profile").style.display = "list-item"
+        document.getElementById("contest").style.display = "list-item"
+      }
+      // ...
+    } else {
+      // User is signed out.  
+    }
+});
+  </script>
+  <script src="submit.js"></script>
+      </body>
+</html>
