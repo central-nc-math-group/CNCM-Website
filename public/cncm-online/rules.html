@@ -84,15 +84,8 @@
                 <td>P6</td>
                 <td>P7</td>
               </tr>
-              <tr>
+              <tr id="pointRow">
                 <td>Base Score</td>
-                <td>1200</td>
-                <td>1450</td>
-                <td>1600</td>
-                <td>1900</td>
-                <td>2300</td>
-                <td>2500</td>
-                <td>3100</td>
               </tr>
             </table>
           </header>
@@ -196,7 +189,21 @@
     } else {
       // User is signed out.  
     }
-});
+  });
+
+  function display() {
+    var tr = document.getElementById("pointRow")
+    
+    firebase.database().ref("Contest/pointValues").once("value").then(function(snapshot) {
+      var pointArray = snapshot.val()
+      
+      for (let n = 0; n < 7; n++) {
+        var td = document.createElement('TD')
+        td.appendChild(document.createTextNode(pointArray[n].toString()))
+        tr.appendChild(td)
+      }
+    })
+  }
   </script>
   <script src="submit.js"></script>
       </body>
