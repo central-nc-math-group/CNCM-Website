@@ -13,12 +13,11 @@
       name="viewport"
       content="width=device-width, initial-scale=1, user-scalable=no"
     />
-    <link rel="icon" href="images/logocrop.png" />
-    <link rel="stylesheet" href="main.css" />
-    <link rel="stylesheet" href="dropdown.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" href="../images/logocrop.png" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
   </head>
-  <body class="is-preload">
+  <body class="is-preload" onload="display()">
     <!-- Wrapper -->
     <div id="wrapper">
       <!-- Header -->
@@ -49,13 +48,11 @@
       <div id="main">
         <div class="inner" >
           <header>
-            <style>
-              h2.inner {letter-spacing: 2px;}
-            </style>
-            
-            <h1 id="title">Welcome to CNCM Online!</h1>
-            <h2 class="inner">Round 1 will be hosted on July 1st from 2-3 PM EST</h2>
-            <p>If you are a newcomer, sign up by opening the menu bar on the top right corner, and clicking Sign-Up. Detailed rules and the contest platform are also contained in the menu bar.</p>
+            <h1>Who We Are</h1>
+            <p>Cyclic National Competitive Math Group (CNCM) is a non-profit organization, whose activity is centered around a Discord server with over 800 members. We host multiple competitions, both in-person and now online.</p>
+            <p>Our Discord server has a wide array of features! Our monthly mini-competition, Problem of the Day (PoTD), has problems to challenge all of our users, and even has a fun competitive aspect. Lectures are released biweekly, and several PoTDs will be based on the topic, to help our members learn.</p>
+            <p>More casually, we also host study groups, work on math problems together, play games, and just chat!</p>
+            <p>Join our Discord server <a href="https://discord.gg/ewQeEMU" target="_blank">here</a>, and check out our website at <a href="https://cncmath.org/" target="blank">https://cncmath.org/</a> for more details about our organization.</p>
           </header>
         </div>
       </div>
@@ -94,13 +91,7 @@
           <section>
             <h2>Follow</h2>
             <ul class="icons">
-              <li>
-                <a
-                  href="mailto:centralncmathgroup@gmail.com"
-                  class="icon solid style2 "
-                  ><i class="fa fa-envelope" style="font-size:21px"></i></a
-                >
-              </li>
+              <li><a href="mailto:centralncmathgroup@gmail.com" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
             </ul>
           </section>
           <ul class="copyright">
@@ -113,11 +104,11 @@
 
 
   <!-- Scripts -->
-  <script src="jquery.min.js"></script>
-  <script src="browser.min.js"></script>
-  <script src="breakpoints.min.js"></script>
-  <script src="util.js"></script>
-  <script src="main.js"></script>
+  <script src="../assets/js/jquery.min.js"></script>
+  <script src="../assets/js/browser.min.js"></script>
+  <script src="../assets/js/breakpoints.min.js"></script>
+  <script src="../assets/js/util.js"></script>
+  <script src="../assets/js/main.js"></script>
 
   <!-- TODO: Add SDKs for Firebase products that you want to use
      https://firebase.google.com/docs/web/setup#available-libraries -->
@@ -141,9 +132,9 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     firebase.database();
-
   
   firebase.auth().onAuthStateChanged(function(user) {
+    
     if (user) {
       // User is signed in.
       var displayName = user.displayName;
@@ -151,7 +142,7 @@
       var emailVerified = user.emailVerified;
       var photoURL = user.photoURL;
       var isAnonymous = user.isAnonymous;
-      var currentUserId = user.uid;
+      currentUserId = user.uid;
       var providerData = user.providerData;
       
       if (emailVerified) {
@@ -159,13 +150,11 @@
         document.getElementById("profile").style.display = "list-item"
         document.getElementById("contest").style.display = "list-item"
       }
-
-      firebase.database().ref("Users/"+currentUserId).update({email: user.email});
       // ...
     } else {
       // User is signed out.  
     }
-  });
+});
   </script>
   <script src="submit.js"></script>
       </body>
