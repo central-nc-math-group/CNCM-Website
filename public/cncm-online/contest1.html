@@ -348,175 +348,175 @@
     }); 
   }
 
-function answer(question) {
-  //question = q1, q2,...
-  var x = document.getElementById(question).value;
+  function answer(question) {
+    //question = q1, q2,...
+    var x = document.getElementById(question).value;
 
-  if(isNaN(x)) {
-    document.getElementById(question + "error").innerHTML = "Your answer must be an integer!";
-  } else if (x == "") {
-    document.getElementById(question + "error").innerHTML = "Your answer must be an integer!";
-  } else {
-    solve(x, question);
+    if(isNaN(x)) {
+      document.getElementById(question + "error").innerHTML = "Your answer must be an integer!";
+      document.getElementById(question).value = ""
+    } else if (x == "") {
+      document.getElementById(question + "error").innerHTML = "Your answer must be an integer!";
+      document.getElementById(question).value = ""
+    } else {
+      solve(x, question);
+    }
   }
-}
-  
-async function solve(x, question) {
-  var now = new Date().getTime();
+    
+  async function solve(x, question) {
+    var now = new Date().getTime();
 
-  var distance = countDownDate - now;
+    var distance = countDownDate - now;
 
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var scoreTime = 60 * hours + minutes + 1;
-  
-  var duration = 1
-  var penalty = 1
-  var pointvalues = []
-  
-  await firebase.database().ref("Contest").once("value").then(function(snapshot) {
-    duration = snapshot.child("duration").val()
-    penalty = snapshot.child("penalty").val()
-    pointvalues = snapshot.child("pointValues").val()
-  })
-  
-  var qnumber = parseInt(question.replace("q",""));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var scoreTime = 60 * hours + minutes + 1;
+    
+    var duration = 1
+    var penalty = 1
+    var pointvalues = []
+    
+    await firebase.database().ref("Contest").once("value").then(function(snapshot) {
+      duration = snapshot.child("duration").val()
+      penalty = snapshot.child("penalty").val()
+      pointvalues = snapshot.child("pointValues").val()
+    })
+    
+    var qnumber = parseInt(question.replace("q",""));
 
-  var user = firebase.auth().currentUser;
-  var reference = firebase.database().ref("Competitors/"+currentUserId)
-  
-  var answer = 0;
-  
-  await firebase.database().ref("Answers").once("value").then(function(snapshot) {
-      answer = snapshot.child(question).val();
-  });
-  
-  var solved;
-  await reference.child(question + "/Solved").once("value").then(function(snapshot) {
-      solved = snapshot.val()
-  });
-  
-  var totalscore = 0;
-          await reference.child("totalscore").once("value").then(function(snapshot) {
-              totalscore = snapshot.val();
-          });
-  
-  if (!solved) {
-      reference.child(question + "/Attempts").once("value").then(function(snapshot) {
-      let attempts = snapshot.val()
+    var user = firebase.auth().currentUser;
+    var reference = firebase.database().ref("Competitors/"+currentUserId)
+    
+    var answer = 0;
+    
+    await firebase.database().ref("Answers").once("value").then(function(snapshot) {
+        answer = snapshot.child(question).val();
+    });
+    
+    var solved;
+    await reference.child(question + "/Solved").once("value").then(function(snapshot) {
+        solved = snapshot.val()
+    });
+    
+    var totalscore = 0;
+            await reference.child("totalscore").once("value").then(function(snapshot) {
+                totalscore = snapshot.val();
+            });
+    
+    if (!solved) {
+        reference.child(question + "/Attempts").once("value").then(function(snapshot) {
+        let attempts = snapshot.val()
 
-      //null means there are 5 attempts
-      if (attempts == null) { 
-        attempts = 5
-      }
-      attempts -= 1
+        //null means there are 5 attempts
+        if (attempts == null) { 
+          attempts = 5
+        }
+        attempts -= 1
 
-      let questionreference = reference.child(question)
-
-      document.getElementById(question + "button").innerHTML = "Submit (" + attempts.toString() + " attempts left)"
-      if (attempts >= 0) {
-        document.getElementById(question).value = ""
-        document.getElementById(question).placeholder = "Current Answer: " + x
+        let questionreference = reference.child(question)
         
-        reference.update({name: user.displayName, email: user.email});
-        questionreference.update({Time: scoreTime, Submission: x});
-        
-        if (x == answer) {
-          document.getElementById(question +"error").innerHTML = "Correct Answer!"
-          document.getElementById(question +"error").style.color = "green"
+        questionreference.child("Answers").update({[(4 - attempts).toString()]: x})
+
+        document.getElementById(question + "button").innerHTML = "Submit (" + attempts.toString() + " attempts left)"
+        if (attempts >= 0) {
+          document.getElementById(question).value = ""
+          document.getElementById(question).placeholder = "Current Answer: " + x
+          
+          reference.update({name: user.displayName, email: user.email});
+          questionreference.update({Time: scoreTime, Submission: x});
+          
+          if (x == answer) {
+            document.getElementById(question +"error").innerHTML = "Correct Answer!"
+            document.getElementById(question +"error").style.color = "green"
+            document.getElementById(question).disabled = true 
+            document.getElementById(question).placeholder = "Correct!"
+            document.getElementById(question).style.backgroundColor = "#c5ffa2"
+            
+            var newscore = parseInt(scoreTime * (pointvalues[qnumber - 1] / duration) - penalty * (4 - attempts))
+            questionreference.update({Score: newscore})
+            
+            var changescore = parseInt(scoreTime * (pointvalues[qnumber - 1] / duration))
+            
+            totalscore += changescore;
+            
+            reference.update({totalscore: totalscore});
+
+            document.getElementById(question + "button").disabled = true 
+            questionreference.update({Solved: true});
+          } else {
+            document.getElementById(question + "error").innerHTML = "Incorrect Answer"
+            document.getElementById(question + "error").style.color = "red"
+            
+            var newscore = parseInt(-1 * penalty * (5 - attempts))
+            questionreference.update({Score: newscore})
+            
+            totalscore -= penalty;
+            
+            reference.update({totalscore: totalscore});
+          }
+        } 
+        if (attempts <= 0 && x != answer) {
           document.getElementById(question).disabled = true 
-          document.getElementById(question).placeholder = "Correct!"
-          document.getElementById(question).style.backgroundColor = "#c5ffa2"
-          
-          var newscore = parseInt(scoreTime * (pointvalues[qnumber - 1]/duration) - penalty * (4 - attempts))
-          questionreference.update({Score: newscore})
-          
-          totalscore += newscore;
-          
-          reference.update({totalscore: totalscore});
+          document.getElementById(question).placeholder = "OUT OF ATTEMPTS, Current Answer: " + x
+          document.getElementById(question).style.backgroundColor = "#f0f0f0"
 
           document.getElementById(question + "button").disabled = true 
-          questionreference.update({Solved: true});
-        } else {
-          document.getElementById(question + "error").innerHTML = "Incorrect Answer"
-          document.getElementById(question + "error").style.color = "red"
-          
-          var newscore = parseInt(-1 * penalty * (5 - attempts))
-          questionreference.update({Score: newscore})
-          
-          totalscore += newscore;
-          
-          reference.update({totalscore: totalscore});
         }
-      }
-      if (attempts <= 0) {
-        document.getElementById(question).disabled = true 
-        document.getElementById(question).placeholder = "OUT OF ATTEMPTS, Current Answer: " + x
-        document.getElementById(question).style.backgroundColor = "#f0f0f0"
+          
+        questionreference.update({Attempts: attempts})
+      }) 
+    }
+    userboard();
+  }  
+    
+  // Update the count down every 1 second
+  var u = setInterval(function() {
+    var now = new Date().getTime();
+    const distance = startDate - now;
+    
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+    if (distance < 0) {
+      document.getElementById("timeuntil").style.display = "none"
+      document.getElementById("submission").style.display = "inline"
+      showProblems();
+    } else {
+      document.getElementById("timeuntil").innerHTML = "The next contest begins in: " + days + "d " + hours + "h "
+      + minutes + "m " + seconds + "s ";
+    }
+    
+  }, 1000);
+  
+  var x = setInterval(function() {
 
-        document.getElementById(question + "button").disabled = true 
-      }
-        
-      questionreference.update({Attempts: attempts})
-    }) 
-  }
-  userboard();
-}  
-  
-// Update the count down every 1 second
-var u = setInterval(function() {
-  var now = new Date().getTime();
-  const distance = startDate - now;
-  
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  
-  if (distance < 0) {
-    document.getElementById("submission").style.display = "inline"
-    showProblems();
-  } else {
-    document.getElementById("timeuntil").innerHTML = "The next contest begins in: " + days + "d " + hours + "h "
+    // Get today's date and time
+    var now = new Date().getTime();
+
+    // Find the distance between now and the count down date
+    var distance = countDownDate - now;
+
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Display the result in the element with id="timer"
+    document.getElementById("timer").innerHTML = "Time Left: " + hours + "h "
     + minutes + "m " + seconds + "s ";
-  }
-  
-}, 1000);
-var x = setInterval(function() {
 
-  // Get today's date and time
-  var now = new Date().getTime();
-
-  // Find the distance between now and the count down date
-  var distance = countDownDate - now;
-
-  // Time calculations for days, hours, minutes and seconds
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-  // Display the result in the element with id="timer"
-  document.getElementById("timer").innerHTML = "Time Left: " + hours + "h "
-  + minutes + "m " + seconds + "s ";
-
-  // If the count down is finished, write some text
-  if (distance < 0) {
-    document.getElementById("submission").style.display = "none"
-    document.getElementById("heading").innerHTML = "The competition has ended!"
-    document.getElementById("leaderboardrefer").style.display = "inline"
-    clearInterval(x);
-    clearInterval(u)
-  }
-}, 1000);
-  
-  /*
-          var temp = 0;
-      await firebase.database().ref("Answers").once('value').then(function(info) {
-            const value = info.child("Q1").val();
-            temp = value;
-      })
-  */
+    // If the count down is finished, write some text
+    if (distance < 0) {
+      document.getElementById("submission").style.display = "none"
+      document.getElementById("heading").innerHTML = "The competition has ended!"
+      document.getElementById("leaderboardrefer").style.display = "inline"
+      clearInterval(x);
+      clearInterval(u)
+    }
+  }, 1000);
     </script>
 	</body>
 </html>
