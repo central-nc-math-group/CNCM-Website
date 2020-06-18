@@ -62,14 +62,19 @@
               
               <div id = "signup" style = "display:none">
                 <input type="text" name="name" id="signuser" placeholder="Email"/>
-                <input type="password" name="name" id="signpass" placeholder="Password"/><button id = "signbutton" onclick="signup()">Sign Up</button>
+                <input type="password" name="name" id="signpass" placeholder="Password"/>
+                <button id = "signbutton" onclick="signup()">Sign Up</button>
                 
                 <h4 id="verification" style="color:green"></h4>
               </div>
                 
               <div id = "login" style = "display:none">
                 <input type="text" name="name" id="username" placeholder="Email"/>
-                <input type="password" name="name" id="password" placeholder="Password"/><button id = "loginbutton" onclick="login()">Login</button>
+                <input type="password" name="name" id="password" placeholder="Password"/>
+                <button id = "loginbutton" onclick="login()">Login</button>
+                <button id="passReset" onclick="passReset()" style="display:none">Forgot Password?</button>
+              
+                <h4 id="passResetLabel" style="color:green"></h4>
               </div>
             </div>
           </div>
@@ -143,17 +148,49 @@
   
   var CurrentUserId;
   
+  firebase.auth().onAuthStateChanged(function(user) {
+    console.log("works")
+    if (user) {
+      // User is signed in.
+      var displayName = user.displayName;
+      var email = user.email;
+      var emailVerified = user.emailVerified;
+      var photoURL = user.photoURL;
+      var isAnonymous = user.isAnonymous;
+      currentUserId = user.uid;
+      var providerData = user.providerData;
+
+      //user.displayName = user.email;
+      var name;
+      if (user.displayName) {
+        name = user.displayName;
+      } else {
+        name = user.email;
+      }
+      firebase.database().ref("Users/"+currentUserId).update({email: user.email, name: name});
+
+      if (emailVerified) {
+        window.location = "profile.html"
+      }
+      // ...
+    } else {
+      // User is signed out.
+    }
+  });
+  
   async function signup () {
     var email = document.getElementById("signuser").value;
     var password = document.getElementById("signpass").value;
     
     firebase.auth().createUserWithEmailAndPassword(email, password).then(function() {
+      document.getElementById("verification").style.color = "green"
       document.getElementById("verification").innerHTML = "Sending verification email..."
     
       firebase.auth().currentUser.sendEmailVerification().then(function() {
         document.getElementById("verification").innerHTML = "Verification Email Sent!"
         firebase.auth().signOut()
       }).catch(function(error) {
+        document.getElementById("verification").style.color = "red"
         document.getElementById("verification").innerHTML = error.message
       })
       
@@ -197,6 +234,8 @@
       } else if (errorCode == "auth/wrong-password") {
         document.getElementById("error").innerHTML = "Incorrect password"
       }
+      
+      document.getElementById("passReset").style.display = "inline"
     // ...
     });
     
@@ -228,46 +267,33 @@
     document.getElementById("error").innerHTML = ""
   }
   
-  firebase.auth().onAuthStateChanged(function(user) {
-    console.log("works")
-  if (user) {
-    // User is signed in.
-    var displayName = user.displayName;
-    var email = user.email;
-    var emailVerified = user.emailVerified;
-    var photoURL = user.photoURL;
-    var isAnonymous = user.isAnonymous;
-    currentUserId = user.uid;
-    var providerData = user.providerData;
+  function passReset() {
+    var email = prompt("Enter your email")
     
-    //user.displayName = user.email;
-    var name;
-    if (user.displayName) {
-      name = user.displayName;
+    if (email == null || email.trim() == "") {
+      
     } else {
-      name = user.email;
+      document.getElementById("passResetLabel").style.color = "green"
+      document.getElementById("passResetLabel").innerHTML = "Sending password reset email..."
+      
+      firebase.auth().sendPasswordResetEmail(email.trim()).then(function() {
+        document.getElementById("passResetLabel").innerHTML = "Password reset email sent!"
+      }).catch(function(error) {
+        var errorCode = error.code
+        var errorMessage = error.message
+        
+        document.getElementById("passResetLabel").style.color = "red"
+        
+        if (errorCode == "auth/invalid-email") {
+          document.getElementById("passResetLabel").innerHTML = "Please use a valid email"
+        } else if (errorCode == "auth/user-not-found") {
+          document.getElementById("passResetLabel").innerHTML = "Email not found"
+        } else {
+          document.getElementById("passResetLabel").innerHTML = errorMessage
+        }
+      })
     }
-    firebase.database().ref("Users/"+currentUserId).update({email: user.email, name: name});
-    
-    if (emailVerified) {
-      window.location = "profile.html"
-    }
-    // ...
-  } else {
-    // User is signed out.
   }
-});
-
-
-  /*
-        if (j == 0) {
-          td.appendChild(document.createTextNode(scores[i].email));    
-      } else if (j == 1) {
-          td.appendChild(document.createTextNode(scores[i].score));    
-      } else {
-          td.appendChild(document.createTextNode("0"));          
-      }
-      */
   </script>
         <script src="submit.js"></script>
 	</body>
