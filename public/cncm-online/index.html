@@ -54,7 +54,7 @@
             
             <h1 id="title">Welcome to CNCM Online!</h1>
             <h2 class="inner">Round 1 will be hosted on July 1st from 2-3 PM EST</h2>
-            <p>If you are a newcomer, sign up by opening the menu bar on the top right corner, and clicking Sign-Up. Detailed rules and the contest platform are also contained in the menu bar.</p>
+            <p>If you are a newcomer, sign up by opening the menu bar on the top right corner, and clicking Sign-Up. Detailed rules and information are also contained in the menu bar.</p>
           </header>
         </div>
       </div>
@@ -119,23 +119,10 @@
 <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-auth.js"></script>
 
-  <script>
-    // Your web app's Firebase configuration
-    var firebaseConfig = {
-      apiKey: "AIzaSyDhoFtNnVhGzV3FqYvSVXo63JfiixRC4a0",
-      authDomain: "cncm-4e7b0.firebaseapp.com",
-      databaseURL: "https://cncm-4e7b0.firebaseio.com",
-      projectId: "cncm-4e7b0",
-      storageBucket: "cncm-4e7b0.appspot.com",
-      messagingSenderId: "45642358967",
-      appId: "1:45642358967:web:7ffb88c0ae142061272d32",
-      measurementId: "G-LMTM6KGV6C"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    firebase.database();
+<!-- Initialize Firebase -->
+<script src="/__/firebase/init.js"></script>
 
-  
+<script>
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       // User is signed in.
@@ -159,7 +146,7 @@
       // User is signed out.  
     }
   });
-  </script>
+</script>
   <script src="submit.js"></script>
       </body>
 </html>

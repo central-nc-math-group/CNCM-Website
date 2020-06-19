@@ -194,22 +194,10 @@
 <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-auth.js"></script>
 
+<!-- Initialize Firebase -->
+<script src="/__/firebase/init.js"></script>
+
 <script>
-  // Your web app's Firebase configuration
-  var firebaseConfig = {
-    apiKey: "AIzaSyDhoFtNnVhGzV3FqYvSVXo63JfiixRC4a0",
-    authDomain: "cncm-4e7b0.firebaseapp.com",
-    databaseURL: "https://cncm-4e7b0.firebaseio.com",
-    projectId: "cncm-4e7b0",
-    storageBucket: "cncm-4e7b0.appspot.com",
-    messagingSenderId: "45642358967",
-    appId: "1:45642358967:web:7ffb88c0ae142061272d32",
-    measurementId: "G-LMTM6KGV6C"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  firebase.database();
-  
   // Setvar startDate = new Date("June 13var startDate = new Date("June 13 the date we're counting down to
   var startDate;
   var countDownDate;
@@ -313,7 +301,7 @@
         totalscore = parseInt(snapshot.val());
     });
 
-    await reference.child("rank").once("value").then(function(snapshot) {
+    await reference.child("rank/Current").once("value").then(function(snapshot) {
         rank = parseInt(snapshot.val());
     });
 
