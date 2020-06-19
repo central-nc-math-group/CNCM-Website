@@ -429,6 +429,7 @@
         let questionreference = reference.child(question)
         
         questionreference.child("Answers").update({[(4 - attempts).toString()]: x})
+        questionreference.child("AnswerTimes").update({[(4 - attempts).toString()]: scoreTime})
 
         document.getElementById(question + "button").innerHTML = "Submit (" + attempts.toString() + " attempts left)"
         if (attempts >= 0) {
