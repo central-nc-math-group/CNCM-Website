@@ -297,7 +297,11 @@
             tr.appendChild(td);
           }
           
-          firebase.database().ref("Competitors/"+ scorersTable[i-1].userid + "/rank").update({[time]: i});
+          if (distance >= 0) {
+            firebase.database().ref("Competitors/"+ scorersTable[i-1].userid + "/rank").update({[time]: i});
+          } else {
+            firebase.database().ref("Competitors/"+ scorersTable[i-1].userid + "/rank").update({"Final": i});
+          }
         }
       }
       myTableDiv.appendChild(table)
