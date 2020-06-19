@@ -226,7 +226,7 @@
           }
 
           firebase.database().ref("Competitors/"+userId).update({totalscore: userscore});
-          scorersTable.push({name: name, score: score, totalscore: userscore});
+          scorersTable.push({name: name, score: score, totalscore: userscore, userid: userId});
         });
       });
     }
@@ -314,6 +314,8 @@
             }
             tr.appendChild(td);
           }
+
+          firebase.database().ref("Competitors/"+ scorersTable[i-1].userid).update({rank: i});
         }
       }
       myTableDiv.appendChild(table)

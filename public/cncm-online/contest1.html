@@ -340,6 +340,7 @@
     var x = document.getElementById("contest");
     x.style.display = "none";
   }
+
   
   async function showProblems() {
     await firebase.database().ref("Contest").once('value').then(async function(info) {
