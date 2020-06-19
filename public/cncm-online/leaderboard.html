@@ -158,22 +158,25 @@
       }
     });
     
+    var startDate;
+    var countDownDate;
+    
     var scorersTable = [];
+    
+    function initDates() {
+      firebase.database().ref("Contest").once("value").then(function(snapshot) {
+        var startString = snapshot.child("startTime").val()
+        var endString = snapshot.child("endTime").val()
 
-    function display() {
-      systemtesting().then(function() {
-        createTable()
+        startDate = new Date(startString).getTime();
+        countDownDate = new Date(endString).getTime();
       })
     }
     
-    function display() {
-      // systemtesting().then(function() {
-      //   createTable()
-      // })
-      
-      getScores().then(function() {
-        createTable()
-      })
+    async function display() {
+      await initDates()
+      await getScores()
+      createTable()
     }
 
     async function getScores() {
@@ -203,72 +206,14 @@
       });
     }
 
-    async function systemtesting() {
-      var temp = [0,0,0,0,0,0,0]
-
-      await firebase.database().ref("Answers").once('value').then(function(info) {
-        for (let n = 1; n < 8; n++) {
-          temp[n-1] = info.child("q" + n.toString()).val();
-        }
-      })
-      
-      var duration = 1
-      var penalty = 1
-      var pointvalues = []
-
-      await firebase.database().ref("Contest").once("value").then(function(snapshot) {
-        duration = snapshot.child("duration").val()
-        penalty = snapshot.child("penalty").val()
-        pointvalues = snapshot.child("pointValues").val()
-      })
-
-      var email = "";
-      var name = "";
-
-      await firebase.database().ref("Competitors").once("value").then(function(questionsSnapshot) {
-        var userId;
-
-        questionsSnapshot.forEach(function(questionSnapshot) {
-          userId = questionSnapshot.key;
-          var name = questionSnapshot.child("name").val();
-
-          var submission = ""
-          var time = 0
-          var score = [0,0,0,0,0,0,0]
-          var userscore = 0;
-          
-          //placehold is 1 to avoid divide by 0
-          for (let n = 1; n < 8; n++) {
-            submission = questionSnapshot.child("q" + n.toString() + "/Submission").val();
-            time = questionSnapshot.child("q" + n.toString() + "/Time").val();
-            attempts = questionSnapshot.child("q" + n.toString() + "/Attempts").val();
-
-            if (temp[n-1] == parseInt(submission)) {
-              score[n-1] = parseInt(pointvalues[n-1] * (time / duration))
-
-              if (attempts != null) {
-                score[n-1] = score[n-1] - penalty * (4 - attempts)
-              }
-            } else {
-              score[n-1] = 0
-
-              if (attempts != null) {
-                score[n-1] = score[n-1] - penalty * (5 - attempts)
-              }
-            }
-
-            userscore += score[n-1]
-
-            firebase.database().ref("Competitors/" + userId + "/q" + n.toString()).update({Score: score[n-1]});
-          }
-
-          firebase.database().ref("Competitors/"+userId).update({totalscore: userscore});
-          scorersTable.push({name: name, score: score, totalscore: userscore, userid: userId});
-        });
-      });
-    }
-
     function createTable() {
+      var now = new Date().getTime();
+
+      var distance = countDownDate - now;
+
+      var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      var time = 60 * hours + minutes + 1;
 
       scorersTable.sort((a,b) => (a.totalscore < b.totalscore) ? 1 : -1);
       var myTableDiv = document.getElementById("myDynamicTable");
@@ -351,7 +296,8 @@
             }
             tr.appendChild(td);
           }
-          firebase.database().ref("Competitors/"+ scorersTable[i-1].userid).update({rank: i});
+          
+          firebase.database().ref("Competitors/"+ scorersTable[i-1].userid + "/rank").update({[time]: i});
         }
       }
       myTableDiv.appendChild(table)
