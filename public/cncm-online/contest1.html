@@ -313,8 +313,6 @@
       rank = 0;
     }
 
-
-
     questions.forEach(function(question) {
       reference.once("value").then(function(snapshot) {
         let score = parseInt(snapshot.child(question + "/Score").val());
@@ -388,11 +386,11 @@
     var user = firebase.auth().currentUser;
     var reference = firebase.database().ref("Competitors/"+currentUserId)
     
-    var answer = 0;
+//     var answer = 0;
     
-    await firebase.database().ref("Answers").once("value").then(function(snapshot) {
-        answer = snapshot.child(question).val();
-    });
+//     await firebase.database().ref("Answers").once("value").then(function(snapshot) {
+//         answer = snapshot.child(question).val();
+//     });
     
     var solved;
     await reference.child(question + "/Solved").once("value").then(function(snapshot) {
@@ -400,12 +398,12 @@
     });
     
     var totalscore = 0;
-            await reference.child("totalscore").once("value").then(function(snapshot) {
-                totalscore = snapshot.val();
-            });
+    await reference.child("totalscore").once("value").then(function(snapshot) {
+        totalscore = snapshot.val();
+    });
     
     if (!solved) {
-        reference.child(question + "/Attempts").once("value").then(function(snapshot) {
+      reference.child(question + "/Attempts").once("value").then(async function(snapshot) {
         let attempts = snapshot.val()
 
         //null means there are 5 attempts
@@ -415,61 +413,73 @@
         attempts -= 1
 
         let questionreference = reference.child(question)
-        
+
         questionreference.child("Answers").update({[(4 - attempts).toString()]: x})
         questionreference.child("AnswerTimes").update({[(4 - attempts).toString()]: scoreTime})
 
         document.getElementById(question + "button").innerHTML = "Submit (" + attempts.toString() + " attempts left)"
-        if (attempts >= 0) {
-          document.getElementById(question).value = ""
-          document.getElementById(question).placeholder = "Current Answer: " + x
+
+        var correct = false;
+
+        var backgroundProcess = firebase.functions().httpsCallable('backgroundProcess');
+
+        await backgroundProcess({answer: x, question: question}).then(function(result) {
+          // Read result of the Cloud Function.
+          correct = result.data.correct;
+          // ...
           
-          reference.update({name: user.displayName, email: user.email});
-          questionreference.update({Time: scoreTime, Submission: x});
-          
-          if (x == answer) {
-            document.getElementById(question +"error").innerHTML = "Correct Answer!"
-            document.getElementById(question +"error").style.color = "green"
+          if (attempts >= 0) {
+            document.getElementById(question).value = ""
+            document.getElementById(question).placeholder = "Current Answer: " + x
+
+            reference.update({name: user.displayName, email: user.email});
+            questionreference.update({Time: scoreTime, Submission: x});
+
+            if (correct) {
+              document.getElementById(question +"error").innerHTML = "Correct Answer!"
+              document.getElementById(question +"error").style.color = "green"
+              document.getElementById(question).disabled = true 
+              document.getElementById(question).placeholder = "Correct!"
+              document.getElementById(question).style.backgroundColor = "#c5ffa2"
+
+              var newscore = parseInt(scoreTime * (pointvalues[qnumber - 1] / duration) - penalty * (4 - attempts))
+              questionreference.update({Score: newscore})
+
+              var changescore = parseInt(scoreTime * (pointvalues[qnumber - 1] / duration))
+
+              totalscore += changescore;
+
+              reference.update({totalscore: totalscore});
+
+              document.getElementById(question + "button").disabled = true 
+              questionreference.update({Solved: true});
+            } else {
+              document.getElementById(question + "error").innerHTML = "Incorrect Answer"
+              document.getElementById(question + "error").style.color = "red"
+
+              var newscore = parseInt(-1 * penalty * (5 - attempts))
+              questionreference.update({Score: newscore})
+
+              totalscore -= penalty;
+
+              reference.update({totalscore: totalscore});
+            }
+          } else if (attempts <= 0) {
             document.getElementById(question).disabled = true 
-            document.getElementById(question).placeholder = "Correct!"
-            document.getElementById(question).style.backgroundColor = "#c5ffa2"
-            
-            var newscore = parseInt(scoreTime * (pointvalues[qnumber - 1] / duration) - penalty * (4 - attempts))
-            questionreference.update({Score: newscore})
-            
-            var changescore = parseInt(scoreTime * (pointvalues[qnumber - 1] / duration))
-            
-            totalscore += changescore;
-            
-            reference.update({totalscore: totalscore});
+            document.getElementById(question).placeholder = "OUT OF ATTEMPTS, Current Answer: " + x
+            document.getElementById(question).style.backgroundColor = "#f0f0f0"
 
             document.getElementById(question + "button").disabled = true 
-            questionreference.update({Solved: true});
-          } else {
-            document.getElementById(question + "error").innerHTML = "Incorrect Answer"
-            document.getElementById(question + "error").style.color = "red"
-            
-            var newscore = parseInt(-1 * penalty * (5 - attempts))
-            questionreference.update({Score: newscore})
-            
-            totalscore -= penalty;
-            
-            reference.update({totalscore: totalscore});
           }
-        } 
-        if (attempts <= 0 && x != answer) {
-          document.getElementById(question).disabled = true 
-          document.getElementById(question).placeholder = "OUT OF ATTEMPTS, Current Answer: " + x
-          document.getElementById(question).style.backgroundColor = "#f0f0f0"
-
-          document.getElementById(question + "button").disabled = true 
-        }
           
+          userboard();
+        })
+        
         questionreference.update({Attempts: attempts})
-      }) 
+      })
+
     }
-    userboard();
-  }  
+  }
     
   // Update the count down every 1 second
   var u = setInterval(function() {
