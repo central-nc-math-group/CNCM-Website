@@ -419,14 +419,12 @@
 
         document.getElementById(question + "button").innerHTML = "Submit (" + attempts.toString() + " attempts left)"
 
-        var correct = false;
+        var test = false;
 
         var backgroundProcess = firebase.functions().httpsCallable('backgroundProcess');
 
         await backgroundProcess({answer: x, question: question}).then(function(result) {
-          // Read result of the Cloud Function.
-          correct = result.data.correct;
-          // ...
+          test = result.data.correct;
           
           if (attempts >= 0) {
             document.getElementById(question).value = ""
@@ -435,17 +433,17 @@
             reference.update({name: user.displayName, email: user.email});
             questionreference.update({Time: scoreTime, Submission: x});
 
-            if (correct) {
+            if (test) {
               document.getElementById(question +"error").innerHTML = "Correct Answer!"
               document.getElementById(question +"error").style.color = "green"
               document.getElementById(question).disabled = true 
               document.getElementById(question).placeholder = "Correct!"
               document.getElementById(question).style.backgroundColor = "#c5ffa2"
 
-              var newscore = parseInt(scoreTime * (pointvalues[qnumber - 1] / duration) - penalty * (4 - attempts))
+              var newscore = parseInt(pointvalues[qnumber - 1] * (0.5 + 0.5 * scoreTime / duration) - penalty * (4 - attempts))
               questionreference.update({Score: newscore})
 
-              var changescore = parseInt(scoreTime * (pointvalues[qnumber - 1] / duration))
+              var changescore = parseInt(pointvalues[qnumber - 1] * (0.5 + 0.5 * scoreTime / duration))
 
               totalscore += changescore;
 
