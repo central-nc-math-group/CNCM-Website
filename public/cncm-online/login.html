@@ -148,15 +148,6 @@
       currentUserId = user.uid;
       var providerData = user.providerData;
 
-      //user.displayName = user.email;
-      var name;
-      if (user.displayName) {
-        name = user.displayName;
-      } else {
-        name = user.email;
-      }
-      firebase.database().ref("Users/"+currentUserId).update({email: user.email, name: name});
-
       if (emailVerified) {
         window.location = "profile.html"
       }
