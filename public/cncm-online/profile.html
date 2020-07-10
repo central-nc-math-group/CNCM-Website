@@ -54,6 +54,10 @@
             <button onclick="logout()">
               Logout
             </button>
+            <br />
+            <p id="rating-paragraph">Rating: Your rating is </p>
+            
+
             
             <h4 id="resetpass" style="color:green"></h4>
           </header>
@@ -154,6 +158,12 @@ firebase.auth().onAuthStateChanged(function(user) {
 
     firebase.database().ref("Users/"+currentUserId).update({email: user.email});
     
+    firebase.database().ref("Users/" + currentUserId + "/rating").once("value").then(function(snapshot) {
+      let rating = snapshot.val();
+      document.getElementById("rating-paragraph").innerHTML = "Rating: " + rating;
+    })
+      
+
     firebase.database().ref("Users/" + currentUserId + "/canRename").once("value").then(function(snapshot) {
       let canRename = snapshot.val()
       
