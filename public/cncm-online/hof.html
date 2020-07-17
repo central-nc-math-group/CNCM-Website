@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="../assets/css/main.css" />
     <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
   </head>
-  <body class="is-preload">
+  <body class="is-preload" onload="displayTopUsers()">
     <!-- Wrapper -->
     <div id="wrapper">
       <!-- Header -->
@@ -49,13 +49,66 @@
       <div id="main">
         <div class="inner" >
           <header>
-            <style>
-              h2.inner {letter-spacing: 2px;}
-            </style>
+            <h1>Hall of Fame</h1>
+            <h2>Top Users</h2>
             
-            <h1 id="title">Welcome to CNCM Online!</h1>
-            <h2 class="inner">Round 1 will be hosted on July 1st from 2-3 PM EDT</h2>
-            <p>If you are a newcomer, sign up by opening the menu bar on the top right corner, and clicking Sign-Up. Detailed rules and information are also contained in the menu bar.</p>
+            <table style="width:50%">
+              <tr>
+                <td>Rank</td>
+                <td>Username</td>
+                <td>Rating</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td id="topU1"></td>
+                <td id="topU1S"></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td id="topU2"></td>
+                <td id="topU2S"></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td id="topU3"></td>
+                <td id="topU3S"></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td id="topU4"></td>
+                <td id="topU4S"></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td id="topU5"></td>
+                <td id="topU5S"></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td id="topU6"></td>
+                <td id="topU6S"></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td id="topU7"></td>
+                <td id="topU7S"></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td id="topU8"></td>
+                <td id="topU8S"></td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td id="topU9"></td>
+                <td id="topU9S"></td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td id="topU10"></td>
+                <td id="topU10S"></td>
+              </tr>
+            </table>
           </header>
         </div>
       </div>
@@ -125,6 +178,7 @@
 
 <script>
   firebase.auth().onAuthStateChanged(function(user) {
+    
     if (user) {
       // User is signed in.
       var displayName = user.displayName;
@@ -132,7 +186,7 @@
       var emailVerified = user.emailVerified;
       var photoURL = user.photoURL;
       var isAnonymous = user.isAnonymous;
-      var currentUserId = user.uid;
+      currentUserId = user.uid;
       var providerData = user.providerData;
       
       if (emailVerified) {
@@ -140,14 +194,29 @@
         document.getElementById("profile").style.display = "list-item"
         document.getElementById("contest").style.display = "list-item"
       }
-
-      firebase.database().ref("Users/"+currentUserId).update({email: user.email});
       // ...
     } else {
       // User is signed out.  
     }
   });
-</script>
+
+  async function displayTopUsers() {
+    var topRated = [];
+    await firebase.database().ref("Users").once("value").then(function(questionsSnapshot) {
+        questionsSnapshot.forEach(function(questionSnapshot) {
+          var name = questionSnapshot.child("name").val();
+          var rating = questionSnapshot.child("rating").val();
+          topRated.push({name: name, rating: rating});
+        });
+      });
+    topRated.sort((a,b) => (a.rating < b.rating) ? 1 : -1);
+    for (var i = 1; i <= 10; i++) {
+        document.getElementById("topU"+i).innerHTML = topRated[i-1].name;
+        document.getElementById("topU"+i+"S").innerHTML = topRated[i-1].rating;
+    }
+
+  }
+  </script>
   <script src="submit.js"></script>
       </body>
 </html>
