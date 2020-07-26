@@ -202,7 +202,6 @@
 <script src="/__/firebase/init.js"></script>
 
 <script>
-  // Setvar startDate = new Date("June 13var startDate = new Date("June 13 the date we're counting down to
   var startDate;
   var countDownDate;
   
@@ -285,8 +284,8 @@
       var startString = snapshot.child("startTime").val()
       var endString = snapshot.child("endTime").val()
 
-      startDate = new Date(startString).getTime();
-      countDownDate = new Date(endString).getTime();
+      startDate = moment(startString, moment.ISO_8601)
+      countDownDate = moment(endString, moment.ISO_8601)
     })
   }
   
@@ -367,9 +366,9 @@
   }
     
   async function solve(x, question) {
-    var now = new Date().getTime();
+    var now = moment();
 
-    var distance = countDownDate - now;
+    var distance = countDownDate.diff(now);
 
     var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -485,8 +484,10 @@
     
   // Update the count down every 1 second
   var u = setInterval(function() {
-    var now = new Date().getTime();
-    const distance = startDate - now;
+    
+    var now = moment();
+    document.getElementById("timeuntil").innerHTML = now.format('LLLL'); 
+    const distance = startDate.diff(now);
     
     var days = Math.floor(distance / (1000 * 60 * 60 * 24));
     var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -510,10 +511,10 @@
   var x = setInterval(function() {
 
     // Get today's date and time
-    var now = new Date().getTime();
+    var now = moment()
 
     // Find the distance between now and the count down date
-    var distance = countDownDate - now;
+    var distance = countDownDate.diff(now);
 
     // Time calculations for days, hours, minutes and seconds
     var days = Math.floor(distance / (1000 * 60 * 60 * 24));
