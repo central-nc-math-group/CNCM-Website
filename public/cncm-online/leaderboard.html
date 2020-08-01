@@ -125,7 +125,7 @@
 <script src="/__/firebase/init.js"></script>
 
   <script>
-    firebase.auth().onAuthStateChanged(function(user) {
+        firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         // User is signed in.
         var displayName = user.displayName;
@@ -152,6 +152,8 @@
     
     var scorersTable = [];
     
+    var round;
+    
     function initDates() {
       firebase.database().ref("Contest").once("value").then(function(snapshot) {
         var startString = snapshot.child("startTime").val()
@@ -163,6 +165,10 @@
     }
     
     async function display() {
+      let snapshot = await firebase.database().ref("Contest/round").once("value")
+      let roundnumber = snapshot.val().toString()
+      round = "Round" + roundnumber
+
       await initDates()
       await getScores()
       createTable()
@@ -172,7 +178,7 @@
       var email = "";
       var name = "";
 
-      await firebase.database().ref("Competitors").once("value").then(function(questionsSnapshot) {
+      await firebase.database().ref("Competitors/" + round).once("value").then(function(questionsSnapshot) {
         var userId;
 
         questionsSnapshot.forEach(function(questionSnapshot) {
@@ -193,7 +199,7 @@
             userscore += score[n-1]
           }
 
-          firebase.database().ref("Competitors/"+userId).update({totalscore: userscore});
+          firebase.database().ref("Competitors/"+round+"/"+userId).update({totalscore: userscore});
           scorersTable.push({name: name, score: score, totalscore: userscore, userid: userId});
         });
       });
@@ -291,11 +297,11 @@
           }
           
           if (distance >= 0) {
-            firebase.database().ref("Competitors/"+ scorersTable[i-1].userid + "/rank").update({[time]: i});
+            firebase.database().ref("Competitors/" + round + "/" + scorersTable[i-1].userid + "/rank").update({[time]: i});
           } else {
-            firebase.database().ref("Competitors/"+ scorersTable[i-1].userid + "/rank").update({"Final": i});
+            firebase.database().ref("Competitors/" + round + "/" + scorersTable[i-1].userid + "/rank").update({"Final": i});
           }
-          firebase.database().ref("Competitors/"+ scorersTable[i-1].userid + "/rank").update({"Current": i});
+          firebase.database().ref("Competitors/" + round + "/" + scorersTable[i-1].userid + "/rank").update({"Current": i});
         }
       }
       myTableDiv.appendChild(table)

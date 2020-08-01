@@ -206,6 +206,7 @@
   var countDownDate;
   
   var CurrentUserId;
+  var round;
   
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
@@ -221,46 +222,50 @@
       if (!emailVerified) {
         window.location = "login.html"
       }
+      
+      firebase.database().ref("Contest/round").once("value").then(function(snapshot) {
+        let roundnumber = snapshot.val().toString();
+        round = "Round" + roundnumber;
+        
+        userboard();
 
-      userboard();
+        let questions = ["q1", "q2", "q3", "q4", "q5", "q6", "q7"]
+        var reference = firebase.database().ref("Competitors/"+round+"/"+currentUserId)
+
+        questions.forEach(function(question) {
+          reference.once("value").then(function(snapshot) {
+            let attempts = snapshot.child(question + "/Attempts").val()
+            let prevanswer = snapshot.child(question + "/Submission").val()
+            let solved = snapshot.child(question + "/Solved").val()
 
 
-      let questions = ["q1", "q2", "q3", "q4", "q5", "q6", "q7"]
-      var reference = firebase.database().ref("Competitors/"+currentUserId)
+            if (solved) {
+              document.getElementById(question +"error").style.color = "green"
+              document.getElementById(question).disabled = true 
+              document.getElementById(question).placeholder = "Correct!"
+              document.getElementById(question).style.backgroundColor = "#c5ffa2"
+              document.getElementById(question + "button").disabled = true 
+            } else { 
+              if (attempts == null) {
 
-      questions.forEach(function(question) {
-        reference.once("value").then(function(snapshot) {
-          let attempts = snapshot.child(question + "/Attempts").val()
-          let prevanswer = snapshot.child(question + "/Submission").val()
-          let solved = snapshot.child(question + "/Solved").val()
+              } else {
+                document.getElementById(question).placeholder = "Current Answer: " + prevanswer
+                document.getElementById(question + "button").innerHTML = "Submit (" + attempts.toString() + " attempts left)"
 
+                if (attempts < 5) {
+                  document.getElementById(question +"error").innerHTML = "Incorrect Answer"
+                  document.getElementById(question +"error").style.color = 'red'
+                }
+                if (attempts <= 0) {
+                  document.getElementById(question).disabled = true 
+                  document.getElementById(question).placeholder = "OUT OF ATTEMPTS, Current Answer: " + prevanswer
+                  document.getElementById(question).style.backgroundColor = "#f0f0f0"
 
-          if (solved) {
-            document.getElementById(question +"error").style.color = "green"
-            document.getElementById(question).disabled = true 
-            document.getElementById(question).placeholder = "Correct!"
-            document.getElementById(question).style.backgroundColor = "#c5ffa2"
-            document.getElementById(question + "button").disabled = true 
-          } else { 
-            if (attempts == null) {
-
-            } else {
-              document.getElementById(question).placeholder = "Current Answer: " + prevanswer
-              document.getElementById(question + "button").innerHTML = "Submit (" + attempts.toString() + " attempts left)"
-
-              if (attempts < 5) {
-                document.getElementById(question +"error").innerHTML = "Incorrect Answer"
-                document.getElementById(question +"error").style.color = 'red'
-              }
-              if (attempts <= 0) {
-                document.getElementById(question).disabled = true 
-                document.getElementById(question).placeholder = "OUT OF ATTEMPTS, Current Answer: " + prevanswer
-                document.getElementById(question).style.backgroundColor = "#f0f0f0"
-
-                document.getElementById(question + "button").disabled = true 
+                  document.getElementById(question + "button").disabled = true 
+                }
               }
             }
-          }
+          })
         })
       })
       
@@ -292,7 +297,7 @@
   async function userboard() {
     let questions = ["q1", "q2", "q3", "q4", "q5", "q6", "q7"]
 
-    var reference = firebase.database().ref("Competitors/"+currentUserId)
+    var reference = firebase.database().ref("Competitors/"+round+"/"+currentUserId)
 
 
     var totalscore = 0;
@@ -387,7 +392,7 @@
     var qnumber = parseInt(question.replace("q",""));
 
     var user = firebase.auth().currentUser;
-    var reference = firebase.database().ref("Competitors/"+currentUserId)
+    var reference = firebase.database().ref("Competitors/"+round+"/"+currentUserId)
     
 //     var answer = 0;
     
@@ -464,21 +469,21 @@
               totalscore -= penalty;
 
               reference.update({totalscore: totalscore});
-            }
-          } else if (attempts <= 0) {
-            document.getElementById(question).disabled = true 
-            document.getElementById(question).placeholder = "OUT OF ATTEMPTS, Current Answer: " + x
-            document.getElementById(question).style.backgroundColor = "#f0f0f0"
+              
+              if (attempts <= 0) {
+                document.getElementById(question).disabled = true 
+                document.getElementById(question).placeholder = "OUT OF ATTEMPTS, Current Answer: " + x
+                document.getElementById(question).style.backgroundColor = "#f0f0f0"
 
-            document.getElementById(question + "button").disabled = true 
-          }
-          
+                document.getElementById(question + "button").disabled = true 
+              }
+            }
+          } 
           userboard();
         })
         
         questionreference.update({Attempts: attempts})
       })
-
     }
   }
     
