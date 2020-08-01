@@ -207,6 +207,7 @@
   
   var CurrentUserId;
   var round;
+  var roundnumber;
   
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
@@ -224,7 +225,7 @@
       }
       
       firebase.database().ref("Contest/round").once("value").then(function(snapshot) {
-        let roundnumber = snapshot.val().toString();
+        roundnumber = snapshot.val().toString();
         round = "Round" + roundnumber;
         
         userboard();
@@ -507,7 +508,7 @@
         showProblems();
       }
     } else {
-      document.getElementById("timeuntil").innerHTML = "Round 1 begins in: " + days + "d " + hours + "h "
+      document.getElementById("timeuntil").innerHTML = "Round " + roundnumber + " begins in: " + days + "d " + hours + "h "
       + minutes + "m " + seconds + "s ";
     }
     
