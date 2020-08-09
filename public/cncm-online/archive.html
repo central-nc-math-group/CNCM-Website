@@ -136,7 +136,7 @@
 <script src="/__/firebase/init.js"></script>
 
 <script>
- var scorersTable = [];
+  var scorersTable = [];
   var round;
   
   firebase.auth().onAuthStateChanged(function(user) {
@@ -185,32 +185,32 @@
   
   
   async function changeTable(selection) {
-      var val = selection.value;
+    var val = selection.value;
     
-      scorersTable = [];
+    scorersTable = [];
     var table = document.getElementById("myDynamicTable2");
     table.innerHTML = "";
     
     await getScores(val);
     createTable();
-    
   }
   
   
   async function getScores(theround) {
-      var email = "";
-      var name = "";
+    var email = "";
+    var name = "";
 
     await firebase.database().ref("Competitors/" + theround).once("value").then(function(questionsSnapshot) {
-        var userId;
+      var userId;
     
-        questionsSnapshot.forEach(function(questionSnapshot) {
-          userId = questionSnapshot.key;
-          var name = questionSnapshot.child("name").val();
+      questionsSnapshot.forEach(function(questionSnapshot) {
+        userId = questionSnapshot.key;
+        var name = questionSnapshot.child("name").val();
 
-          var score = [0,0,0,0,0,0,0]
-          var userscore = 0;
-          
+        var score = [0,0,0,0,0,0,0]
+        var userscore = 0;
+        
+        if (name != null) {
           //placehold is 1 to avoid divide by 0
           for (let n = 1; n < 8; n++) {
             score[n-1] = questionSnapshot.child("q" + n.toString() + "/Score").val();
@@ -223,99 +223,98 @@
           }
 
           scorersTable.push({name: name, score: score, totalscore: userscore, userid: userId});
-        });
+        }
       });
-    }
+    });
+  }
 
-    function createTable() {
+  function createTable() {
+    scorersTable.sort((a,b) => (a.totalscore < b.totalscore) ? 1 : -1);
+    var myTableDiv = document.getElementById("myDynamicTable2");
 
+    var table = document.createElement('TABLE');
+    table.border = '1';
 
-      scorersTable.sort((a,b) => (a.totalscore < b.totalscore) ? 1 : -1);
-      var myTableDiv = document.getElementById("myDynamicTable2");
+    var tableBody = document.createElement('TBODY');
+    table.appendChild(tableBody);
 
-      var table = document.createElement('TABLE');
-      table.border = '1';
+    for (var i = 0; i < scorersTable.length + 1; i++) {
+      var tr = document.createElement('TR');
+      tableBody.appendChild(tr);
 
-      var tableBody = document.createElement('TBODY');
-      table.appendChild(tableBody);
+      if (i == 0) {
+        var td = document.createElement('TD');
 
-      for (var i = 0; i < scorersTable.length + 1; i++) {
-        var tr = document.createElement('TR');
-        tableBody.appendChild(tr);
+        td.width = '20';
+        td.appendChild(document.createTextNode("Rank"));
+        tr.appendChild(td)
 
-        if (i == 0) {
+        td = document.createElement('TD');
+        td.width = '75';
+        td.appendChild(document.createTextNode("Username"));
+        tr.appendChild(td)
+
+        td = document.createElement('TD');
+        td.width = '75';
+        td.appendChild(document.createTextNode("Total"));
+        tr.appendChild(td)
+
+        td = document.createElement('TD');
+        td.width = '75';
+        td.appendChild(document.createTextNode("P1"));
+        tr.appendChild(td)
+
+        td = document.createElement('TD');
+        td.width = '75';
+        td.appendChild(document.createTextNode("P2"));
+        tr.appendChild(td)
+
+        td = document.createElement('TD');
+        td.width = '75';
+        td.appendChild(document.createTextNode("P3"));
+        tr.appendChild(td)
+
+        td = document.createElement('TD');
+        td.width = '75';
+        td.appendChild(document.createTextNode("P4"));
+        tr.appendChild(td)
+
+        td = document.createElement('TD');
+        td.width = '75';
+        td.appendChild(document.createTextNode("P5"));
+        tr.appendChild(td)
+
+        td = document.createElement('TD');
+        td.width = '75';
+        td.appendChild(document.createTextNode("P6"));
+        tr.appendChild(td)
+
+        td = document.createElement('TD');
+        td.width = '75';
+        td.appendChild(document.createTextNode("P7"));
+        tr.appendChild(td)
+      } else {
+        for (var j = 0; j < 10; j++) {
           var td = document.createElement('TD');
-
-          td.width = '20';
-          td.appendChild(document.createTextNode("Rank"));
-          tr.appendChild(td)
-
-          td = document.createElement('TD');
           td.width = '75';
-          td.appendChild(document.createTextNode("Username"));
-          tr.appendChild(td)
-
-          td = document.createElement('TD');
-          td.width = '75';
-          td.appendChild(document.createTextNode("Total"));
-          tr.appendChild(td)
-
-          td = document.createElement('TD');
-          td.width = '75';
-          td.appendChild(document.createTextNode("P1"));
-          tr.appendChild(td)
-
-          td = document.createElement('TD');
-          td.width = '75';
-          td.appendChild(document.createTextNode("P2"));
-          tr.appendChild(td)
-
-          td = document.createElement('TD');
-          td.width = '75';
-          td.appendChild(document.createTextNode("P3"));
-          tr.appendChild(td)
-
-          td = document.createElement('TD');
-          td.width = '75';
-          td.appendChild(document.createTextNode("P4"));
-          tr.appendChild(td)
-
-          td = document.createElement('TD');
-          td.width = '75';
-          td.appendChild(document.createTextNode("P5"));
-          tr.appendChild(td)
-
-          td = document.createElement('TD');
-          td.width = '75';
-          td.appendChild(document.createTextNode("P6"));
-          tr.appendChild(td)
-
-          td = document.createElement('TD');
-          td.width = '75';
-          td.appendChild(document.createTextNode("P7"));
-          tr.appendChild(td)
-        } else {
-          for (var j = 0; j < 10; j++) {
-            var td = document.createElement('TD');
-            td.width = '75';
-            if (j == 0) {
-              td.width = '20';
-              td.appendChild(document.createTextNode(i));
-            } else if (j == 1) {
-              td.appendChild(document.createTextNode(scorersTable[i-1].name));
-            } else if (j == 2) {
-              td.style.fontWeight = "900";
-              td.appendChild(document.createTextNode(scorersTable[i-1].totalscore));
-            } else {
-              td.appendChild(document.createTextNode(scorersTable[i-1].score[j-3]));
-            }
-            tr.appendChild(td);
+          if (j == 0) {
+            td.width = '20';
+            td.appendChild(document.createTextNode(i));
+          } else if (j == 1) {
+            td.appendChild(document.createTextNode(scorersTable[i-1].name));
+          } else if (j == 2) {
+            td.style.fontWeight = "900";
+            td.appendChild(document.createTextNode(scorersTable[i-1].totalscore));
+          } else {
+            td.appendChild(document.createTextNode(scorersTable[i-1].score[j-3]));
           }
-          
-      myTableDiv.appendChild(table)
-    }
+          tr.appendChild(td);
+        }
+        
+        myTableDiv.appendChild(table)
       }
     }
+  }
 </script>
   <script src="submit.js"></script>
       </body>

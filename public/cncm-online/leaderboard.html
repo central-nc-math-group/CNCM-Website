@@ -188,19 +188,21 @@
           var score = [0,0,0,0,0,0,0]
           var userscore = 0;
           
-          //placehold is 1 to avoid divide by 0
-          for (let n = 1; n < 8; n++) {
-            score[n-1] = questionSnapshot.child("q" + n.toString() + "/Score").val();
+          if (name != null) {
+            //placehold is 1 to avoid divide by 0
+            for (let n = 1; n < 8; n++) {
+              score[n-1] = questionSnapshot.child("q" + n.toString() + "/Score").val();
 
-            if (score[n-1] == null) {
-              score[n-1] = 0
+              if (score[n-1] == null) {
+                score[n-1] = 0
+              }
+
+              userscore += score[n-1]
             }
 
-            userscore += score[n-1]
+            firebase.database().ref("Competitors/"+round+"/"+userId).update({totalscore: userscore});
+            scorersTable.push({name: name, score: score, totalscore: userscore, userid: userId});
           }
-
-          firebase.database().ref("Competitors/"+round+"/"+userId).update({totalscore: userscore});
-          scorersTable.push({name: name, score: score, totalscore: userscore, userid: userId});
         });
       });
     }
