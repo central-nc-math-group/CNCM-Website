@@ -173,11 +173,14 @@
 <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-analytics.js"></script>
 
 <!-- Initialize Firebase -->
 <script src="/__/firebase/init.js"></script>
 
 <script>
+  firebase.analytics()
+  
   firebase.auth().onAuthStateChanged(function(user) {
     
     if (user) {
