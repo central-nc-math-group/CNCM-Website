@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="../assets/css/main.css" />
     <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
   </head>
-  <body class="is-preload" onload="display()">
+  <body class="is-preload">
     <!-- Wrapper -->
     <div id="wrapper">
       <!-- Header -->
@@ -51,45 +51,31 @@
       <div id="main">
         <div class="inner" >
           <header>
-            <h1>Rules</h1>
-            <ul>
-              <li><b>Contest</b></li>
-                <ul>
-                  <li>CNCM Online is a recurring 7 problem 60 minute online short answer contest</li>
-                  <li>The competition is individual and speed-based, so scores for each problem will depend on its time of submission and number of attempts</li>
-                  <li>Problem difficulty ranges from AMC to olympiad level</li>
-                  <li>The only resources allowed are writing utensils, paper, a compass, and a ruler</li>
-                  <li>We reserve the right to disqualify any competitor suspected of cheating from the contest</li>
-                </ul>
-              <li><b>Scoring</b></li>
-                <ul>
-                  <li>Each answer is an integer</li>
-                  <li>Submissions will be graded live, and a live leaderboard will organize all of the scores in decreasing order</li>
-                  <li>5 incorrect attempts on the same problem will disallow you from submitting an answer for the said problem for the rest of the contest</li>
-                  <li>The official scoring formula is as follows: <b>[points] = [baseScore] x (1 - [timeTaken] / 120)</b></li>
-                    <ul style="margin-bottom: 0px">
-                      <li>There is a 100 point deduction for each incorrect attempt even if the question is not eventually answered correctly</li>
-                      <li>Base score values can be found in the table below and may vary between each contest</li>
-                      <li>[timeTaken] is measured in minutes and is rounded down</li>
-                    </ul>
-                </ul>
-            </ul>
-            
-            <table style="width:75%">
-              <tr>
-                <td>Problem #</td>
-                <td>P1</td>
-                <td>P2</td>
-                <td>P3</td>
-                <td>P4</td>
-                <td>P5</td>
-                <td>P6</td>
-                <td>P7</td>
-              </tr>
-              <tr id="pointRow">
-                <td>Base Score</td>
-              </tr>
-            </table>
+            <style>
+              img {
+                max-width: 60%;
+                height: auto;
+              }
+              .center {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                width: 50%;
+              }
+              p {
+                text-align: center;
+                padding-top: 35px;
+                padding-bottom: 60px;
+              }
+            </style>
+            <img src="../images/DC Logo.png" alt="Daily Challenge Logo" class="center">
+            <p>
+              <a href="https://daily.poshenloh.com/" target="_blank"><b>The Daily Challenge</b></a>, headed by US IMO team coach Prof. Po-Shen Loh, provides a variety of incredibly useful online math courses, covering topics including Algebra, Number Theory, and Combinatorics. 
+            </p>
+            <img src="../images/AoPS_Main_Logo.png" alt="AoPS Logo" class="center">
+            <p>
+              <a href="https://artofproblemsolving.com/" target="_blank"><b>Art of Problem Solving (AoPS)</b></a> provides a lot of valuable math resources (including books, online math programs such as Alcumus, etc.) and a bustling online community on the forums part of their website! Take a look at their <a href="../pdfs/AoPS_Flyer.pdf" target="_blank"><b>flyer!</b></a>
+            </p>
           </header>
         </div>
       </div>
@@ -162,7 +148,6 @@
   firebase.analytics()
   
   firebase.auth().onAuthStateChanged(function(user) {
-    
     if (user) {
       // User is signed in.
       var displayName = user.displayName;
@@ -170,7 +155,7 @@
       var emailVerified = user.emailVerified;
       var photoURL = user.photoURL;
       var isAnonymous = user.isAnonymous;
-      currentUserId = user.uid;
+      var currentUserId = user.uid;
       var providerData = user.providerData;
       
       if (emailVerified) {
@@ -178,26 +163,14 @@
         document.getElementById("profile").style.display = "list-item"
         document.getElementById("contest").style.display = "list-item"
       }
+
+      firebase.database().ref("Users/"+currentUserId).update({email: user.email});
       // ...
     } else {
       // User is signed out.  
     }
   });
-
-  function display() {
-    var tr = document.getElementById("pointRow")
-    
-    firebase.database().ref("Contest/pointValues").once("value").then(function(snapshot) {
-      var pointArray = snapshot.val()
-      
-      for (let n = 0; n < 7; n++) {
-        var td = document.createElement('TD')
-        td.appendChild(document.createTextNode(pointArray[n].toString()))
-        tr.appendChild(td)
-      }
-    })
-  }
-  </script>
+</script>
   <script src="submit.js"></script>
       </body>
 </html>
