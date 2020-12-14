@@ -75,7 +75,7 @@
                 <input type="text" name="name" id="username" placeholder="Email"/>
                 <input type="password" name="name" id="password" placeholder="Password"/>
                 <button id = "loginbutton" onclick="login()">Login</button>
-                <button id="passReset" onclick="passReset()" style="display:none">Forgot Password?</button>
+                <button id="passReset" onclick="passReset()">Forgot Password?</button>
               
                 <h4 id="passResetLabel" style="color:green"></h4>
               </div>
@@ -219,8 +219,6 @@
       } else if (errorCode == "auth/wrong-password") {
         document.getElementById("error").innerHTML = "Incorrect password"
       }
-      
-      document.getElementById("passReset").style.display = "inline"
     // ...
     });
     

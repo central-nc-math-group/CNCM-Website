@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="../assets/css/main.css" />
     <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
   </head>
-  <body class="is-preload">
+  <body onload="rickroll()" class="is-preload">
     <!-- Wrapper -->
     <div id="wrapper">
       <!-- Header -->
@@ -56,7 +56,7 @@
             </style>
             
             <h1 id="title">Welcome to CNCM Online!</h1>
-            <h2 class="inner">Round 4 is coming soon!</h2>
+            <h2 class="inner">Round 3 will begin on November 7th from 2-3 PM EDT</h2>
             <p>If you are a newcomer, sign up by opening the menu bar on the top right corner, and clicking Sign-Up. Detailed rules and information are also contained in the menu bar.</p>
           </header>
         </div>
@@ -129,6 +129,10 @@
 <script>
   firebase.analytics()
   
+  function rickroll() {
+    window.location = "https://www.youtube.com/watch?v=xvFZjo5PgG0";
+  }
+
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       // User is signed in.
